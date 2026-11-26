@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="ur">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gupshap</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#111}
+button,input,textarea{font:inherit;color:inherit;border:0;background:none}
+button{cursor:pointer}
+[hidden]{display:none!important}
+#room{position:relative;max-width:480px;height:100vh;height:100dvh;margin:auto;overflow:hidden;color:#fff;display:flex;flex-direction:column;padding:max(12px,env(safe-area-inset-top)) 12px max(10px,env(safe-area-inset-bottom))}
+#bg{position:absolute;inset:0;background:center/cover no-repeat}
+#bg:after{content:"";position:absolute;inset:0;background:linear-gradient(#0003,#0000 35%,#000a)}
+#room>:not(#bg):not(.sheet){position:relative}
+.row{display:flex;align-items:center;gap:10px}
+.grow{flex:1;min-width:0}
+#avatar{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#e7b75f,#6b2a5c);display:grid;place-items:center;font-size:24px}
+#rName{font-weight:700;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#idbtn{font-size:12px;opacity:.75}
+.icon{width:40px;height:40px;font-size:20px}
+.pill{background:#0005;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:700;color:#ffd978;margin-top:10px}
+.pill.o{border:1px solid #ffd978;color:#fff}
+#seats{display:grid;grid-template-columns:repeat(5,1fr);gap:14px 4px;margin-top:22px}
+.seat{text-align:center;font-size:11px;text-shadow:0 1px 3px #000}
+.seat i{display:grid;place-items:center;width:min(56px,15vw);aspect-ratio:1;margin:0 auto 5px;border-radius:50%;border:3px solid #dcae57;background:radial-gradient(#6d2c66,#2c1030);font-style:normal;font-size:21px;box-shadow:0 2px 8px #0008}
+.seat.me i{border-color:#6dffb0;box-shadow:0 0 14px #6dffb0}
+#tabs{margin-top:16px;font-size:14px}
+#tabs button{padding:6px 14px;border-radius:18px}
+#tabs .on{background:#0006;font-weight:700}
+#feed{flex:1;min-height:60px;overflow-y:auto;display:flex;flex-direction:column;margin:8px 0;gap:8px}
+#feed>:first-child{margin-top:auto}
+.msg{background:#0008;border-radius:14px;padding:10px 14px;max-width:85%;font-size:14px;line-height:1.45;align-self:flex-start;overflow-wrap:anywhere}
+.welcome{color:#7dffc4}
+.msg b{color:#ffd978}
+#bar button{width:46px;height:46px;border-radius:50%;background:#0008;font-size:20px;flex:none}
+#bar #giftBtn{background:linear-gradient(135deg,#ff5fc4,#8a5cff)}
+#composer input{flex:1;min-width:0;background:#fff;color:#222;border-radius:22px;padding:11px 16px}
+#composer button{background:#6a46e0;border-radius:22px;padding:11px 18px}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-height:80%;overflow-y:auto;background:#1d1424f5;border-radius:22px 22px 0 0;padding:16px 16px max(20px,env(safe-area-inset-bottom));z-index:5}
+.sheet h3{font-size:17px}
+.sheet label{display:block;font-size:13px;opacity:.8;margin:14px 0 6px}
+.sheet input[type=text],.sheet textarea{width:100%;background:#ffffff18;border-radius:12px;padding:10px 12px}
+#walls{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+#walls button{aspect-ratio:3/4;border-radius:12px;background:center/cover;border:3px solid transparent;display:flex;align-items:flex-end;justify-content:center;font-size:11px;text-shadow:0 1px 3px #000;padding:4px}
+#walls .on{border-color:#ffd978}
+.choice button,.wide,.picks button{background:#ffffff18;border-radius:12px;padding:10px 16px}
+.choice .on{background:#dcae57;color:#201020;font-weight:700}
+.wide{display:block;width:100%;text-align:center;margin-top:8px}
+.picks{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.picks button{font-size:24px;padding:10px 0}
+#lobby{max-width:480px;min-height:100vh;margin:auto;padding:16px;background:#efeaff;color:#1d1633}
+#lobby h1{margin-bottom:12px}
+#lobby input,#lobby select{padding:11px;border:1px solid #d4cdf0;border-radius:12px;background:#fff}
+#name{width:100%;margin-bottom:14px}
+.card{display:flex;width:100%;align-items:center;gap:12px;background:#fff;border-radius:18px;padding:12px;margin-bottom:10px;text-align:left}
+.thumb{width:58px;height:58px;border-radius:14px;background:center/cover #6b2a5c;flex:none}
+.create{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.create input{flex:1;min-width:140px}
+#createBtn{background:#6a46e0;color:#fff;border-radius:12px;padding:11px 18px}
+.seat i{overflow:hidden}
+.seat i.taken{border-color:#fff;font-weight:700}
+.seat.me i{border-color:#ffe34d}
+.seat i.speaking{border-color:#4ade80;box-shadow:0 0 0 4px #4ade80aa,0 0 16px #4ade80}
+.seat span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.msg b{margin-right:6px}
+#micBtn.on{background:#16a34a!important}#micBtn.muted{background:#dc2626!important}
+#audios{display:none}
+</style>
+</head>
+<body>
+<div id="lobby">
+  <h1>🎙 Gupshap</h1>
+  <input id="name" placeholder="Apna naam" maxlength="20">
+  <div id="roomList"></div>
+  <div class="create">
+    <input id="newRoom" placeholder="Naye room ka naam" maxlength="30">
+    <select id="newMax"><option value="10">10 seats</option><option value="5">5 seats</option><option value="15">15 seats</option></select>
+    <select id="newTheme"><option value="rose">Rose Garden</option><option value="night">Starry Night</option><option value="lake">Sunset Lake</option><option value="royal">Royal</option></select>
+    <button id="createBtn">Banao</button>
+  </div>
+</div>
+<main id="room" hidden>
+  <div id="bg"></div>
+  <header class="row">
+    <div id="avatar">🌹</div>
+    <div class="grow"><div id="rName"></div><small id="role"></small></div>
+    <button class="icon" id="setTop" aria-label="Settings">⚙️</button>
+    <button class="icon" id="leave" aria-label="Leave">⏻</button>
+  </header>
+  <div class="row"><span class="pill o">👥 <span id="online">1</span> online</span></div>
+  <section id="seats"></section>
+  <nav id="tabs" class="row"><button class="on" data-t="all">All</button><button data-t="chat">Chat</button><button data-t="gift">Gift</button><span class="grow"></span><button id="share">🔗 Share</button></nav>
+  <section id="feed">
+    <div class="msg welcome sys">Welcome! Please keep the room friendly. Abusive, fraudulent or illegal content is not allowed.</div>
+    <div class="msg sys"><b>📢 Announcement</b><div id="annText"></div></div>
+  </section>
+  <footer>
+    <form id="composer" class="row" hidden><input id="text" placeholder="Type a message..." autocomplete="off" maxlength="300"><button>Send</button></form>
+    <div id="bar" class="row"><button id="chatBtn" aria-label="Chat">💬</button><button id="micBtn" aria-label="Mic">🎙️</button><button id="emojiBtn" aria-label="Emoji">😊</button><button id="standBtn" aria-label="Seat chhoro" hidden>⬇️</button><span class="grow"></span><button id="menuBtn" aria-label="Settings">▦</button><button id="giftBtn" aria-label="Gift">🎁</button></div>
+  </footer>
+
+  <div class="sheet" id="settings" hidden>
+    <div class="row"><h3 class="grow">Room Settings</h3><button class="icon close">✕</button></div>
+    <label>Wallpaper</label><div id="walls"></div>
+    <label class="wide">📷 Gallery se wallpaper lagayein<input id="upload" type="file" accept="image/*" hidden></label>
+    
+    <label for="inAnn">Announcement</label><textarea id="inAnn" rows="2" maxlength="200"></textarea><button class="wide" id="annSave">Announcement save karein</button>
+    <label>Mic seats</label><div class="row choice" id="count"><button>5</button><button>10</button><button>15</button></div>
+  </div>
+  <div class="sheet" id="picker" hidden>
+    <div class="row"><h3 class="grow" id="pickTitle"></h3><button class="icon close">✕</button></div>
+    <div class="picks" id="picks"></div>
+  </div>
+  <div id="audios"></div>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+// Original wallpapers, drawn in code
+let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+const many=(n,f)=>Array.from({length:n},f).join('');
+const svg=(a,b,c,body)=>'data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 860" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop stop-color="${a}"/><stop offset=".55" stop-color="${b}"/><stop offset="1" stop-color="${c}"/></linearGradient></defs><rect width="400" height="860" fill="url(#g)"/>${body}</svg>`);
+const dots=(n,h,col,r)=>many(n,()=>`<circle cx="${rnd()*400}" cy="${rnd()*h}" r="${rnd()*r+.5}" fill="${col}" opacity="${rnd()*.7+.3}"/>`);
+const flower=(x,y)=>{const r=6+rnd()*8,c=['#b3123f','#e0446c','#f59ab0','#8f0f33'][rnd()*4|0];return `<circle cx="${x}" cy="${y}" r="${r}" fill="${c}"/><circle cx="${x}" cy="${y}" r="${r*.5}" fill="none" stroke="#ffffff55" stroke-width="1.5"/>`};
+const garden=svg('#8d5a63','#f0ae7c','#3a2220',
+ `<circle cx="320" cy="180" r="120" fill="#ffd9a0" opacity=".3"/>
+ <path d="M70 300Q80 150 200 130Q320 150 330 300Z" fill="#f3dfc4"/><path d="M200 130V70" stroke="#d9a94e" stroke-width="6"/><circle cx="200" cy="68" r="9" fill="#d9a94e"/>
+ <rect x="55" y="295" width="290" height="26" rx="5" fill="#d9b784"/>
+ ${[80,135,250,305].map(x=>`<rect x="${x}" y="320" width="16" height="280" fill="#f6e6cf"/>`).join('')}
+ ${[0,1,2,3,4].map(i=>`<rect x="${55-i*16}" y="${600+i*30}" width="${290+i*32}" height="28" rx="4" fill="#e8d3bc" opacity="${.9-i*.13}"/>`).join('')}
+ ${many(90,()=>{const t=rnd()*Math.PI;return flower(200-Math.cos(t)*135+rnd()*24-12,300-Math.sin(t)*135+rnd()*24)})}
+ ${many(50,(_,i)=>flower((i%2?55:345)+rnd()*40-20,300+rnd()*330))}
+ ${dots(60,860,'#e0446c',3)}`);
+const night=svg('#07092a','#2a2766','#0c0b22',dots(110,560,'#fff',1.6)+`<circle cx="310" cy="330" r="46" fill="#fff3c4"/><circle cx="332" cy="316" r="42" fill="#1d1c52"/><path d="M0 650L120 500L240 640L330 540L400 620V860H0Z" fill="#161541"/><path d="M0 730L90 660L220 760L330 690L400 720V860H0Z" fill="#0a091c"/>`);
+const lake=svg('#2e1b4d','#c4566a','#2a1838',`<circle cx="200" cy="600" r="85" fill="#ffd37d"/><path d="M0 540L110 620H0ZM400 520L290 620H400Z" fill="#432150"/><rect y="620" width="400" height="240" fill="#3b2050"/>`+many(9,(_,i)=>`<rect x="${100+rnd()*50}" y="${638+i*22}" width="${90+rnd()*80}" height="4" rx="2" fill="#ffc77d" opacity="${.8-i*.07}"/>`));
+const royal=svg('#3b0d4a','#7a1f63','#160620',dots(70,860,'#ffd978',2.5)+many(5,(_,i)=>`<circle cx="200" cy="300" r="${70+i*55}" fill="none" stroke="#dcae57" opacity="${.35-i*.05}" stroke-width="2"/>`));
+const walls = [['Rose Garden',garden],['Starry Night',night],['Sunset Lake',lake],['Royal',royal]];
+
+
+const W = { rose: garden, night, lake, royal };
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+};
+let key = store.get('gsKey');
+if (!key) { key = Array.from(crypto.getRandomValues(new Uint32Array(4)), n => n.toString(36)).join(''); store.set('gsKey', key); }
+let curRoom = '', isOwner = false, info = {}, tab = 'all';
+$('name').value = store.get('gsName') || '';
+const socket = io();
+const ICE = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+let me = null, seats = [], localStream = null, muted = false;
+const pcs = {}, watchers = {};
+const actx = new (window.AudioContext || window.webkitAudioContext)();
+
+/* ---------- lobby ---------- */
+const invited = new URLSearchParams(location.search).get('room');
+socket.on('rooms', list => {
+  list.sort((a, b) => (b.name === invited) - (a.name === invited));
+  $('roomList').replaceChildren(...list.map(r => {
+    const d = document.createElement('button'); d.className = 'card';
+    const t = document.createElement('div'); t.className = 'thumb';
+    if (W[r.theme]) t.style.backgroundImage = `url("${W[r.theme]}")`;
+    const box = document.createElement('div'); box.className = 'grow';
+    const b = document.createElement('b'); b.textContent = (r.name === invited ? '⭐ ' : '') + r.name;
+    const sm = document.createElement('div'); sm.textContent = `🎙 ${r.mics}/${r.max} · 👥 ${r.online} online`;
+    box.append(b, sm); d.append(t, box);
+    d.onclick = () => joinRoom(r.name);
+    return d;
+  }));
+});
+$('createBtn').onclick = () => socket.emit('create-room',
+  { name: $('newRoom').value, max: $('newMax').value, theme: $('newTheme').value, key },
+  res => res.error ? alert(res.error) : $('newRoom').value = '');
+
+function applyInfo(i) {
+  const annChanged = i.ann !== info.ann; info = i;
+  const url = i.theme === 'custom' ? i.custom : W[i.theme] || garden;
+  $('bg').style.backgroundImage = `url("${url}")`;
+  $('annText').textContent = i.ann;
+  if (annChanged) $('inAnn').value = i.ann;
+  [...$('walls').children].forEach(b => b.classList.toggle('on', b.dataset.w === i.theme));
+  [...$('count').children].forEach(b => b.classList.toggle('on', +b.textContent === i.max));
+}
+function joinRoom(room) {
+  actx.resume();
+  const name = $('name').value.trim() || 'guest' + Math.floor(Math.random() * 1000);
+  store.set('gsName', $('name').value.trim());
+  socket.emit('join-room', { room, name, key }, res => {
+    if (res.error) return alert(res.error);
+    me = res.me; seats = res.seats; curRoom = room; isOwner = res.owner;
+    $('lobby').hidden = true; $('room').hidden = false;
+    $('rName').textContent = room; $('online').textContent = res.online;
+    $('avatar').textContent = room[0].toUpperCase();
+    $('role').textContent = isOwner ? 'Aap owner hain' : name;
+    $('feed').querySelectorAll('.msg:not(.sys)').forEach(x => x.remove());
+    setTab('all'); closeSheets(); $('composer').hidden = true;
+    info = {}; applyInfo(res); renderSeats();
+  });
+}
+function exitRoom() {
+  teardownAudio(); curRoom = '';
+  closeSheets(); $('room').hidden = true; $('lobby').hidden = false;
+}
+$('leave').onclick = () => { socket.emit('leave-room'); exitRoom(); };
+socket.on('disconnect', () => { if (curRoom) { exitRoom(); alert('Connection toot gaya. Room dobara join karein.'); } });
+socket.on('room-info', applyInfo);
+
+/* ---------- seats ---------- */
+const hue = n => { let h = 0; for (const c of n) h = (h * 31 + c.charCodeAt(0)) % 360; return `hsl(${h} 55% 45%)`; };
+function mySeat() { return seats.findIndex(s => s && s.id === me); }
+function renderSeats() {
+  $('seats').replaceChildren(...seats.map((s, i) => {
+    const d = document.createElement('button'); d.className = 'seat' + (s && s.id === me ? ' me' : '');
+    const c = document.createElement('i'); c.textContent = s ? s.name[0].toUpperCase() : '🎙️';
+    if (s) { d.dataset.id = s.id; c.className = 'taken'; c.style.background = hue(s.name); }
+    const l = document.createElement('span'); l.textContent = s ? s.name : 'No.' + (i + 1);
+    d.append(c, l);
+    d.onclick = () => { if (!s) sit(i); };
+    return d;
+  }));
+  $('standBtn').hidden = mySeat() < 0;
+  updateMicBtn();
+}
+socket.on('seats', s => { seats = s; if ($('room').hidden) return; renderSeats();
+  if (mySeat() < 0 && localStream) setTrack(false); });
+socket.on('online', n => $('online').textContent = n);
+
+/* ---------- chat, emoji, gift ---------- */
+const hidden = t => tab !== 'all' && tab !== t;
+socket.on('chat', m => {
+  const d = document.createElement('div'); d.className = 'msg'; d.dataset.t = m.type;
+  const b = document.createElement('b'); b.textContent = m.name + ':';
+  d.append(b, document.createTextNode(m.type === 'gift' ? 'gift bheja ' + m.text : m.text));
+  d.hidden = hidden(m.type);
+  $('feed').appendChild(d); $('feed').scrollTop = 1e9;
+});
+function setTab(t) {
+  tab = t;
+  $('tabs').querySelectorAll('[data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+  $('feed').querySelectorAll('.msg').forEach(x => x.hidden = x.classList.contains('sys') ? t !== 'all' : hidden(x.dataset.t));
+}
+$('tabs').onclick = e => e.target.dataset.t && setTab(e.target.dataset.t);
+const all = q => document.querySelectorAll(q);
+function closeSheets() { all('.sheet').forEach(x => x.hidden = true); }
+function openSheet(id) { closeSheets(); $(id).hidden = false; }
+all('.close').forEach(b => b.onclick = closeSheets);
+$('chatBtn').onclick = () => { closeSheets(); const c = $('composer'); c.hidden = !c.hidden; if (!c.hidden) $('text').focus(); };
+$('composer').onsubmit = e => { e.preventDefault(); const t = $('text').value.trim(); if (t) socket.emit('chat', t); $('text').value = ''; };
+function picker(title, list, type) {
+  $('pickTitle').textContent = title;
+  $('picks').replaceChildren(...list.map(x => {
+    const b = document.createElement('button'); b.textContent = x;
+    b.onclick = () => { socket.emit('chat', x, type); closeSheets(); };
+    return b;
+  }));
+  openSheet('picker');
+}
+$('emojiBtn').onclick = () => picker('Emoji', ['😀','😂','😍','😎','👏','🔥','❤️','👍'], 'chat');
+$('giftBtn').onclick = () => picker('Gift bhejein', ['🌹','🍫','💎','👑','🎂','🚗','⭐','🎉'], 'gift');
+$('share').onclick = () => {
+  const url = location.origin + location.pathname + '?room=' + encodeURIComponent(curRoom);
+  if (navigator.share) navigator.share({ title: 'Gupshap', url }).catch(() => {});
+  else if (navigator.clipboard) navigator.clipboard.writeText(url).then(() => alert('Link copy ho gaya'));
+  else prompt('Link copy karein', url);
+};
+
+/* ---------- settings ---------- */
+const change = p => socket.emit('settings', p, res => res.error && alert(res.error));
+$('setTop').onclick = $('menuBtn').onclick = () => isOwner ? openSheet('settings') : alert('Sirf room owner settings badal sakta hai');
+walls.forEach(([label, url], i) => {
+  const b = document.createElement('button'); b.dataset.w = Object.keys(W)[i]; b.textContent = label;
+  b.style.backgroundImage = `url("${url}")`; b.onclick = () => change({ theme: b.dataset.w });
+  $('walls').appendChild(b);
+});
+$('count').onclick = e => { if (e.target.tagName === 'BUTTON') change({ max: +e.target.textContent }); };
+$('annSave').onclick = () => change({ ann: $('inAnn').value });
+$('upload').onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const img = new Image(), url = URL.createObjectURL(f);
+  img.onload = () => {
+    const k = Math.min(1, 1100 / Math.max(img.width, img.height)), c = document.createElement('canvas');
+    c.width = img.width * k; c.height = img.height * k; c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    let q = .8, out = c.toDataURL('image/jpeg', q);
+    while (out.length > 600000 && q > .3) out = c.toDataURL('image/jpeg', q -= .1);
+    change({ custom: out }); URL.revokeObjectURL(url); e.target.value = '';
+  };
+  img.onerror = () => alert('Yeh image nahi khul saki.');
+  img.src = url;
+};
+
+/* ---------- mic / seat ---------- */
+function setTrack(on) { localStream && localStream.getAudioTracks().forEach(t => t.enabled = on); }
+function updateMicBtn() {
+  const b = $('micBtn'); b.textContent = muted ? '🔇' : '🎤';
+  const seated = mySeat() >= 0;
+  b.classList.toggle('muted', seated && muted); b.classList.toggle('on', seated && !muted);
+}
+async function sit(i) {
+  actx.resume();
+  const first = !localStream;
+  if (first) {
+    try { localStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); }
+    catch (e) { return alert('Mic ki ijazat nahi mili (localhost ya HTTPS zaroori hai)'); }
+    watch(me, localStream);
+  }
+  socket.emit('take-seat', i, res => {
+    if (res.error) { if (first) teardownAudio(); return alert(res.error); }
+    muted = false; setTrack(true); updateMicBtn();
+    if (first) res.others.forEach(callPeer);   // pehli dafa: sab ko apni awaaz bhejo
+  });
+}
+$('standBtn').onclick = () => { socket.emit('leave-seat'); setTrack(false); };
+$('micBtn').onclick = () => {
+  if (mySeat() < 0) { const free = seats.findIndex(x => !x); return free < 0 ? alert('Koi seat khali nahi') : sit(free); }
+  muted = !muted; setTrack(!muted); updateMicBtn();
+};
+
+/* ---------- WebRTC ---------- */
+function makePC(id) {
+  const pc = new RTCPeerConnection(ICE); pcs[id] = pc;
+  if (localStream) localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+  pc.onicecandidate = e => e.candidate && socket.emit('signal', { to: id, data: { candidate: e.candidate } });
+  pc.ontrack = e => {
+    let a = document.getElementById('a_' + id);
+    if (!a) { a = document.createElement('audio'); a.id = 'a_' + id; a.autoplay = true; $('audios').appendChild(a); }
+    a.srcObject = e.streams[0];
+    watch(id, e.streams[0]);
+  };
+  return pc;
+}
+function closePeer(id) {
+  if (pcs[id]) { pcs[id].close(); delete pcs[id]; }
+  document.getElementById('a_' + id)?.remove();
+  unwatch(id);
+}
+async function callPeer(id) {
+  closePeer(id);
+  const pc = makePC(id);
+  await pc.setLocalDescription(await pc.createOffer());
+  socket.emit('signal', { to: id, data: { sdp: pc.localDescription } });
+}
+socket.on('member-joined', id => { if (localStream) callPeer(id); });   // naye bande ko apni awaaz bhejo
+socket.on('peer-left', closePeer);
+socket.on('signal', async ({ from, data }) => {
+  try {
+    if (data.sdp) {
+      if (data.sdp.type === 'offer') {
+        const old = pcs[from];
+        if (old && old.signalingState === 'have-local-offer' && socket.id > from) return; // glare
+        closePeer(from);
+        const pc = makePC(from);
+        await pc.setRemoteDescription(data.sdp);
+        await pc.setLocalDescription(await pc.createAnswer());
+        socket.emit('signal', { to: from, data: { sdp: pc.localDescription } });
+      } else if (pcs[from]) await pcs[from].setRemoteDescription(data.sdp);
+    } else if (data.candidate && pcs[from]) await pcs[from].addIceCandidate(data.candidate);
+  } catch (e) { console.warn(e); }
+});
+function teardownAudio() {
+  Object.keys(pcs).forEach(closePeer);
+  Object.keys(watchers).forEach(unwatch);
+  localStream && localStream.getTracks().forEach(t => t.stop());
+  localStream = null; muted = false;
+}
+
+/* ---------- bolne wala highlight ---------- */
+function watch(id, stream) {
+  unwatch(id);
+  try {
+    const src = actx.createMediaStreamSource(stream), an = actx.createAnalyser();
+    an.fftSize = 256; src.connect(an);
+    watchers[id] = { src, an, buf: new Uint8Array(an.frequencyBinCount) };
+  } catch (e) {}
+}
+function unwatch(id) { const w = watchers[id]; if (w) { try { w.src.disconnect(); } catch (e) {} delete watchers[id]; } }
+setInterval(() => {
+  for (const id in watchers) {
+    const w = watchers[id]; w.an.getByteFrequencyData(w.buf);
+    const avg = w.buf.reduce((a, b) => a + b, 0) / w.buf.length;
+    const c = document.querySelector(`.seat[data-id="${id}"] i`);
+    if (c) c.classList.toggle('speaking', avg > 14);
+  }
+}, 120);
+</script>
+</body>
+</html>
